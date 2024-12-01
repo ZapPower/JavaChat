@@ -9,7 +9,7 @@ import java.util.*;
  * A chat room that separates clients
  */
 public class ChatRoom {
-    private static final List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<ClientHandler>());
+    private List<ClientHandler> clients;
     private int chatNum;
 
     /**
@@ -19,6 +19,7 @@ public class ChatRoom {
      */
     public ChatRoom(int chatNum) {
         this.chatNum = chatNum;
+        this.clients = Collections.synchronizedList(new ArrayList<ClientHandler>());
     }
 
     /**
