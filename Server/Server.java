@@ -20,6 +20,9 @@ public class Server {
             PrintWriter clientOut;
             BufferedReader clientIn;
 
+            ChatRoom startupRoom = new ChatRoom(1);
+            rooms.add(startupRoom);
+
             // Accept incoming connections
             while (true) {
                 Socket clientSocket = serverSocket.accept();

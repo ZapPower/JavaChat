@@ -41,7 +41,7 @@ public class ChatRoom {
      */
     public void broadcast(String message) {
         for (ClientHandler client : clients) {
-            client.sendMessage("[" + client.getUsername() + "]: " + message);
+            client.sendMessage(message);
         }
     }
 
