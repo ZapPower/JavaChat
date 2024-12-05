@@ -78,4 +78,13 @@ public class ChatRoom {
     public int getChatNum() {
         return this.chatNum;
     }
+
+    /**
+     * Returns the number of currently connected users
+     * 
+     * @return Number of connected users
+     */
+    public int getNumConnected() {
+        return this.clients.size();
+    }
 }
