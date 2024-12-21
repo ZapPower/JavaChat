@@ -18,7 +18,7 @@ public class Server {
     public static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(PORT);
-            System.out.println("Server is running.");
+            System.out.println("Server is running on port " + serverSocket.getLocalPort());
 
             ChatRoom startupRoom = new ChatRoom(1);
             rooms.add(startupRoom);
@@ -55,13 +55,12 @@ public class Server {
     private static int requestChatRoom(PrintWriter out, BufferedReader in) throws IOException {
         out.println("CHATROOMS");
         for (ChatRoom room : rooms) {
-            out.println(room.getChatNum());
-            out.println("CONNECTED");
             for (String user : room.getConnectedUsers()) {
                 out.println(user);
             }
             out.println("ENDCONNECTED");
         }
+        out.println("ENDCHATROOMS");
         return Integer.parseInt(in.readLine());
     }
 

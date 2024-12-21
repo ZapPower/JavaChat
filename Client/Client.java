@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
@@ -13,7 +14,7 @@ public class Client {
     private static Socket clientSocket = null;
     private static PrintWriter clientOut = null;
     private static BufferedReader clientIn = null;
-    private static boolean createChatRoom = false;
+    private static boolean createChatRoomFlag = false;
     private static final Scanner scanner = new Scanner(System.in);
 
     // TODO: Comment everything!
@@ -23,6 +24,7 @@ public class Client {
 
         SERVER_ADDRESS = getServerAddress();
         SERVER_PORT = getServerPort();
+        setRoomCreationFlag();
 
         connect(SERVER_ADDRESS, SERVER_PORT);
         System.out.println("Connected!");
@@ -49,6 +51,16 @@ public class Client {
         return port;
     }
 
+    public static void setRoomCreationFlag() {
+        System.out.println("Create a room? (y/n)");
+        String response = scanner.nextLine();
+        if (response.equalsIgnoreCase("y")) {
+            createChatRoomFlag = true;
+        } else {
+            createChatRoomFlag = false;
+        }
+    }
+
     private static void connect(String address, int port) {
         try {
             System.out.println("Now connecting to server...");
@@ -64,20 +76,6 @@ public class Client {
     }
 
     private static class ServerHandler implements Runnable {
-        public ServerHandler() {
-            setRoomCreationFlag();
-        }
-
-        public void setRoomCreationFlag() {
-            System.out.println("Create a room? (y/n)");
-            String response = scanner.nextLine();
-            if (response.equalsIgnoreCase("y")) {
-                createChatRoom = true;
-            } else {
-                createChatRoom = false;
-            }
-        }
-
         public void run() {
             try {
                 String serverResponse;
@@ -91,16 +89,90 @@ public class Client {
         }
 
         public void handleServerResponse(String response) {
-            // TODO: Create handlers for each response
             switch (response) {
                 case "CREATEROOM?":
+                    handleCreateRoom();
                     break;
                 case "GETUSER":
+                    handleGetUser();
                     break;
                 case "CHATROOMS":
+                    handleChatRoomRead();
                     break;
                 case "ROOMSELECTERR":
+                    handleChatRoomRead();
+                    System.out.println("Requested chat room was not valid. Please try again.");
+                    handleRoomSelection();
                     break;
+                default:
+                    System.out.println(response);
+                    break;
+            }
+        }
+
+        public void handleCreateRoom() {
+            clientOut.println(String.valueOf(createChatRoomFlag));
+        }
+
+        public void handleGetUser() {
+            System.out.println("Please enter your username:");
+            String username = scanner.nextLine();
+            clientOut.println(username);
+        }
+
+        public void handleChatRoomRead() {
+            ArrayList<String[]> rooms = new ArrayList<>();
+            ArrayList<String> userBuffer = new ArrayList<>();
+
+            String serverResponse;
+            try {
+                serverResponse = clientIn.readLine();
+                while (!serverResponse.equals("ENDCHATROOMS")) {
+                    if (serverResponse.equals("ENDCONNECTED")) {
+                        String[] users = userBuffer.toArray(new String[0]);
+                        rooms.add(users);
+                        userBuffer.clear();
+                    } else {
+                        userBuffer.add(serverResponse);
+                    }
+                    serverResponse = clientIn.readLine();
+                }
+            } catch (IOException e) {
+                System.out.println("Error in fetching chat rooms:");
+                e.printStackTrace();
+            }
+            
+            displayAvailableChatRooms(rooms);
+            handleRoomSelection();
+        }
+
+        public void displayAvailableChatRooms(ArrayList<String[]> rooms) {
+            System.out.println("Available Chat Rooms:");
+            for (int i = 0; i < rooms.size(); i++) {
+                String[] users = rooms.get(i);
+                System.out.println("Room " + (i + 1) + ":");
+                for (String user : users) {
+                    System.out.println("\t" + user);
+                }
+            }
+        }
+
+        public void handleRoomSelection() {
+            System.out.println("Please select a valid chat room:");
+            String clientResponse = scanner.nextLine();
+            while (!isInt(clientResponse)) {
+                System.out.println("Invalid chat room. Please try again:");
+                clientResponse = scanner.nextLine();
+            }
+            clientOut.println(clientResponse);
+        }
+
+        private boolean isInt(String s) {
+            try {
+                Integer.parseInt(s);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
             }
         }
     }
