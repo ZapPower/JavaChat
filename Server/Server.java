@@ -26,7 +26,7 @@ public class Server {
             ChatRoom startupRoom2 = new ChatRoom(2);
             rooms.add(startupRoom2);
 
-            // Begin room cleanup routine. Will remove all unused rooms except rooms 1 and 2 every minute
+            // Begin room cleanup routine. Will remove all unused rooms except rooms 1 and 2 every 10 minutes
             new Thread(new RoomCleanupRoutine()).start();
 
             // Accept incoming connections
@@ -198,8 +198,8 @@ public class Server {
         public void run() {
             Timer time = new Timer();
             RoomCleanup task = new RoomCleanup();
-            // Clean up rooms every minute
-            time.schedule(task, 0, 60000);
+            // Clean up rooms every 10 minutes
+            time.schedule(task, 0, 600000);
         }
     }
 
