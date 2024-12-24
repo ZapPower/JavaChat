@@ -40,6 +40,8 @@ public class ClientHandler implements Runnable {
             this.room.broadcast(this.username + " has connected.");
             // Send currently connected users to the client
             sendConnected();
+            // Let client know now accepting messages
+            this.out.println("CONNECTED");
 
             String input;
 

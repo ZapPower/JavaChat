@@ -18,6 +18,8 @@ public class Client {
     private static final Scanner scanner = new Scanner(System.in);
 
     // TODO: Comment everything!
+    // TODO: Handle client sending chat messages
+    // TODO: Create buffer to watch input to not delete in progress input on incoming message
 
     public static void main(String[] args) {
         System.out.println("Welcome to JavaChat!");
@@ -100,14 +102,21 @@ public class Client {
                     handleChatRoomRead();
                     break;
                 case "ROOMSELECTERR":
-                    handleChatRoomRead();
                     System.out.println("Requested chat room was not valid. Please try again.");
-                    handleRoomSelection();
+                    break;
+                case "CONNECTED":
+                    new Thread(new UserInputHandler()).start();
                     break;
                 default:
-                    System.out.println(response);
+                    handleChatMessage(response);
                     break;
             }
+        }
+
+        public void handleChatMessage(String message) {
+            System.out.print("\033[2K\r"); // Clear the current line (": ")
+            System.out.println(message);
+            System.out.print(": ");
         }
 
         public void handleCreateRoom() {
@@ -173,6 +182,25 @@ public class Client {
                 return true;
             } catch (NumberFormatException e) {
                 return false;
+            }
+        }
+    }
+
+    private static class UserInputHandler implements Runnable {
+        @Override
+        public void run() {
+            String userInput;
+            while (true) {
+                userInput = scanner.nextLine();
+                // Before message sent, remove line
+                // Clear the previous line using ANSI escape codes
+                System.out.print("\033[1A"); // Move cursor up one line
+                System.out.print("\033[2K"); // Clear the line
+
+                clientOut.println(userInput);
+                
+                // Add text thingy for user
+                System.out.print(": ");
             }
         }
     }
