@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.*;
 
 public class Server {
-    private static final int PORT = 1234;
+    private static int PORT = 1000;
     private static final List<ChatRoom> rooms = Collections.synchronizedList(new ArrayList<>());
 
     // TODO: allow clients to exit ChatRoom to enter a different one - not sure how to implement atm
@@ -17,6 +17,10 @@ public class Server {
 
     public static void main(String[] args) {
         try {
+            Scanner s = new Scanner(System.in);
+            System.out.println("Enter port to host on:");
+            PORT = s.nextInt();
+
             ServerSocket serverSocket = new ServerSocket(PORT);
             System.out.println("Server is running on port " + serverSocket.getLocalPort());
 
